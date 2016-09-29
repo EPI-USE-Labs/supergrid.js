@@ -19,16 +19,11 @@
       float: none;
       position: absolute;
     }
-
-    .ui-resizable-handle {
-      width: 30px;
-      height: 30px;
-      background: red;
-    }
   }
 
   .grid-placeholder {
     position: absolute;
     border: 1px dashed black;
+    box-sizing: border-box;
   }
 }

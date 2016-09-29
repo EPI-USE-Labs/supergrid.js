@@ -14,9 +14,9 @@
     var Node = function (element) {
         this.element = element;
         this.id = -1;
-        this.x = element.data('grid-x');
-        this.y = element.data('grid-y');
-        this.width = element.data('grid-width');
+        this.x = Math.max(Math.min(element.data('grid-x') || 0, 6), 0);
+        this.y = element.data('grid-y') || 0;
+        this.width = Math.max(Math.min(element.data('grid-width') || 1, 6), 1);
         this.pixelY = 0;
         this.pixelHeight = 0;
         this.jsonId = -1;
@@ -35,82 +35,75 @@
             resizableX: false,
             resizableY: false,
             dragZIndex: 100,
-            minItemWidth: 1
+            minItemWidth: 1,
+            onChange: function () {}
         });
-
-        this.state = {};
-        this.state.dragEnabled = false;
 
         this.element = $(selector);
         this.nodes = [];
         this.draggingNodeId = -1;
+        this.containerWidth = this.element.innerWidth();
 
         this.placeholderElement = $('<div class="grid-placeholder" />').hide();
         this.element.append(this.placeholderElement);
 
         this.itemElements = $('.grid-item', this.element);
         this.itemElements.each(function (index, item) {
-            var $item = $(item);
-
-            var node = new Node($item);
-            node.setId(self.nodes.push(node) - 1);
-            node.jsonId = $item.data('id');
+            self.addNode($(item));
         });
 
         this.layout();
-        this.setStatic(this.options.static);
 
         $(window).on('resize', function () {self.onWindowResize();});
+
+        // Schedule a relayout in case the content changes
+        setTimeout(function () {self.layout();}, 0);
     };
 
-    SuperGrid.prototype.setStatic = function (staticState) {
-        this.options.static = staticState;
+    SuperGrid.prototype.addNode = function (element) {
+        var node = new Node(element);
+        node.setId(this.nodes.push(node) - 1);
+        node.jsonId = element.data('id');
 
-        if (staticState) {
-            if (this.state.dragEnabled) {
-                if (this.options.resizableX || this.options.resizableY) {
-                    this.itemElements.resizable("destroy");
-                }
+        node.element.addClass('grid-placed');
 
-                this.itemElements.draggable("destroy");
-            }
-        }
-        else {
-            if (!this.state.dragEnabled) {
-                this.state.dragEnabled = true;
+        if (!this.options.static) {
+            element.draggable({
+                containment: "parent",
+                zIndex: this.options.dragZIndex,
+                drag: this.onDrag.bind(this),
+                start: this.onDragStart.bind(this),
+                stop: this.onDragStop.bind(this)
+            });
 
-                this.itemElements.draggable({
+            if (this.options.resizableX || this.options.resizableY) {
+                var handles = (this.options.resizableX ? ['e', 'w'] : []).concat((this.options.resizableY ? ['s'] : [])).join(',');
+                element.resizable({
+                    autoHide: true,
                     containment: "parent",
-                    zIndex: this.options.dragZIndex,
-                    drag: this.onDrag.bind(this),
+                    handles: handles,
+                    resize: this.onResize.bind(this),
                     start: this.onDragStart.bind(this),
                     stop: this.onDragStop.bind(this)
                 });
-
-                if (this.options.resizableX || this.options.resizableY) {
-                    var handles = (this.options.resizableX ? ['e', 'w'] : []).concat((this.options.resizableY ? ['s'] : [])).join(',');
-                    this.itemElements.resizable({
-                        autoHide: true,
-                        containment: "parent",
-                        handles: handles,
-                        resize: this.onResize.bind(this),
-                        start: this.onDragStart.bind(this),
-                        stop: this.onDragStop.bind(this)
-                    });
-                }
             }
         }
-    }
+    };
+
+    SuperGrid.prototype.removeNode = function (node) {
+        if (!this.options.static) {
+            node.element.draggable("destroy");
+            node.element.resizable("destroy");
+        }
+
+        node.element.data('grid-id', null);
+        node.element.removeClass('grid-placed');
+    };
 
     SuperGrid.prototype.destroy = function () {
         $(window).off('resize', this.onWindowResize.bind(this));
 
-        this.setStatic(true);
-
-        _.forEach(this.nodes, function (node) {
-            node.element.data('grid-id', null);
-            node.element.removeClass('grid-placed');
-        });
+        _.forEach(this.nodes, function (node) {this.removeNode(node);});
     };
 
     SuperGrid.prototype.layout = function () {
@@ -164,37 +157,47 @@
         this.element.css('height', containerHeight);
     };
 
-    SuperGrid.prototype.onResize = function(event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
-
-        var containerWidth = this.element.innerWidth();
-        node.x = Math.max(Math.min(Math.floor(ui.position.left * 6.0 / containerWidth + 0.01), 6), 0);
-        node.width = Math.max(Math.min(Math.ceil(ui.size.width * 6.0 / containerWidth), 6), this.options.minItemWidth);
-
+    SuperGrid.prototype.updatePlaceholder = function (node) {
         this.placeholderElement.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
         this.placeholderElement.css({top: node.pixelY, height: node.pixelHeight});
-
-        this.layout();
     };
 
-    SuperGrid.prototype.onDrag = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+    SuperGrid.prototype.updateNode = function (node, position, size) {
+        var old = {x: node.x, y: node.y, width: node.width};
 
-        var containerWidth = this.element.innerWidth();
-        node.x = Math.max(Math.min(Math.round(ui.position.left * 6.0 / containerWidth), 6), 0);
+        node.x = Math.max(Math.min(Math.floor(position.left * 6.0 / this.containerWidth + 0.01), 6), 0);
+
+        if (size !== undefined) {
+            node.width = Math.max(Math.min(Math.ceil(size.width * 6.0 / this.containerWidth), 6), this.options.minItemWidth);
+        }
 
         node.y = 0;
         _.forEach(this.nodes, function (otherNode) {
-            if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && ui.position.top > otherNode.pixelY) {
+            if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && position.top > otherNode.pixelY) {
                 if (node.y < otherNode.y + 1) {
                     node.y = otherNode.y + 1;
                 }
             }
         });
 
-        this.placeholderElement.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        this.placeholderElement.css({top: node.pixelY, height: node.pixelHeight});
+        return (old.x != node.x || old.y != node.y || old.width != node.width);
+    };
 
+    SuperGrid.prototype.onResize = function (event, ui) {
+        var node = this.nodes[ui.helper.data('grid-id')];
+
+        ui.size.width = Math.max(this.containerWidth * this.options.minItemWidth / 6.0, ui.size.width);
+
+        this.updateNode(node, ui.position, ui.size);
+        this.updatePlaceholder(node);
+        this.layout();
+    };
+
+    SuperGrid.prototype.onDrag = function (event, ui) {
+        var node = this.nodes[ui.helper.data('grid-id')];
+
+        this.updateNode(node, ui.position);
+        this.updatePlaceholder(node);
         this.layout();
     };
 
@@ -203,8 +206,7 @@
 
         this.draggingNodeId = node.id;
 
-        this.placeholderElement.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        this.placeholderElement.css({top: node.pixelY, height: node.pixelHeight});
+        this.updatePlaceholder(node);
         this.placeholderElement.show();
     };
 
@@ -215,18 +217,25 @@
 
         this.placeholderElement.hide();
 
+        this.updateNode(node, ui.position);
         node.element.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        node.element.css({top: node.pixelY, width: '', left: ''});
+        node.element.css({width: '', left: ''});
         if (!this.options.resizableY) node.element.css({height: ''});
+
+        this.layout();
+        node.element.css({top: node.pixelY});
+
+        this.options.onChange();
     };
 
     SuperGrid.prototype.onWindowResize = function () {
+        this.containerWidth = this.element.innerWidth();
         this.layout();
     };
 
     SuperGrid.prototype.toJson = function () {
         return _.map(this.nodes, function (node) {
-            return {id: node.jsonId, x: node.x, y: node.y, width: node.width};
+            return {id: node.jsonId, x_pos: node.x, y_pos: node.y, width: node.width};
         });
     };
 

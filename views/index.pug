@@ -18,6 +18,7 @@ html
             #disable-grid.button Disable grid
             #force-layout.button Force layout
             #json-out.button Output JSON
+            #add-widget.button Add widget
         .clear-both
         #grid-container.grid
             .grid-item(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
@@ -95,4 +96,9 @@ html
             });
             $('#json-out').click(function () {
                 $('#json-out-area').text(JSON.stringify(window.grid.toJson()));
+            });
+            $('#add-widget').click(function () {
+                var html = '<div class="grid-item" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="item"><h1>New item</h1></div></div>';
+                window.grid.element.append(html);
+                window.grid.addNode($('.grid-item', window.grid.element).not('.grid-placed'));
             });
