@@ -9,5 +9,6 @@
     <orderEntry type="library" name="lodash" level="application" />
     <orderEntry type="library" name="jquery-ui" level="application" />
     <orderEntry type="library" name="jquery-1.12.4" level="application" />
+    <orderEntry type="library" name="jquery" level="application" />
   </component>
 </module>
