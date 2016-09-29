@@ -1,0 +1,97 @@
+doctype html
+html
+    head
+        title SuperGrid test
+        link(rel="stylesheet", type="text/css", href="/supergrid.css")
+        link(rel="stylesheet", type="text/css", href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css")
+        script(src="/jquery-1.12.4.js")
+        script(src="/jquery-ui.js")
+        script(src="/lodash.min.js")
+        script(src="/supergrid.js")
+    body
+        h1 SuperGrid demo
+        .buttons
+            #enable-static-grid.button Enable static grid
+            #enable-dynamic-grid.button Enable dynamic grid
+            #enable-dynamic-height-grid.button Enable dynamic grid with resizable height
+            #disable-grid.button Disable grid
+            #force-layout.button Force layout
+            #json-out.button Output JSON
+        .clear-both
+        #grid-container.grid
+            .grid-item(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
+                .item
+                    h1 Test 1
+                    p other test blah
+            .grid-item(data-id=2, data-grid-x=4, data-grid-y=0, data-grid-width=2)
+                .item
+                    h1 Test 4
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+            .grid-item(data-id=3, data-grid-x=0, data-grid-y=1, data-grid-width=2)
+                .item
+                    h1 Test 1
+                    p other test blah
+            .grid-item(data-id=4, data-grid-x=2, data-grid-y=1, data-grid-width=2)
+                .item
+                    h1 Test 1
+                    p other test blah
+            .grid-item(data-id=5, data-grid-x=4, data-grid-y=1, data-grid-width=2)
+                .item
+                    h1 Test 1
+                    p other test blah
+            .grid-item(data-id=6, data-grid-x=0, data-grid-y=2, data-grid-width=6)
+                .item
+                    h1 Test 7
+                    p other test blah, a very very very awesomely super duper long super line
+                    p other test blah
+                    p other test blah
+            .grid-item(data-id=7, data-grid-x=0, data-grid-y=3, data-grid-width=4)
+                .item
+                    h1 Test 2
+                    p other test blah
+            .grid-item(data-id=8, data-grid-x=4, data-grid-y=3, data-grid-width=2)
+                .item
+                    h1 Test 5
+                    p other test blah, a very very super long line
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+            .grid-item(data-id=9, data-grid-x=0, data-grid-y=4, data-grid-width=4)
+                .item
+                    h1 Test 3
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+                    p other test blah
+            .grid-item(data-id=10, data-grid-x=4, data-grid-y=4, data-grid-width=2)
+                .item
+                    h1 Test 6
+                    p other test blah
+        p#json-out-area
+        script.
+            window.grid = null;
+            $('#enable-static-grid').click(function () {
+                window.grid = new SuperGrid('#grid-container', {static: true});
+            });
+            $('#enable-dynamic-grid').click(function () {
+                window.grid = new SuperGrid('#grid-container', {static: false, resizableX: true, resizableY: false, minItemWidth: 2});
+            });
+            $('#enable-dynamic-height-grid').click(function () {
+                window.grid = new SuperGrid('#grid-container', {static: false, resizableX: true, resizableY: true});
+            });
+            $('#disable-grid').click(function () {
+                window.grid.destroy()
+            });
+            $('#force-layout').click(function () {
+                window.grid.layout()
+            });
+            $('#json-out').click(function () {
+                $('#json-out-area').text(JSON.stringify(window.grid.toJson()));
+            });

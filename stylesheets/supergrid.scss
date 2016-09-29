@@ -1,0 +1,59 @@
+.grid {
+  position: relative;
+  width: 100%;
+
+  @for $x from 1 through 6 {
+    .grid-placed.grid-item[data-grid-x="#{$x}"], .grid-placeholder[data-grid-x="#{$x}"] {
+      left: $x * 100% / 6;
+    }
+
+    .grid-item[data-grid-width="#{$x}"], .grid-placeholder[data-grid-width="#{$x}"] {
+      width: $x * 99.9% / 6;
+    }
+  }
+
+  .grid-item {
+    float: left;
+
+    &.grid-placed {
+      float: none;
+      position: absolute;
+    }
+
+    .ui-resizable-handle {
+      width: 30px;
+      height: 30px;
+      background: red;
+    }
+  }
+
+  .grid-placeholder {
+    position: absolute;
+    border: 1px dashed black;
+  }
+}
+
+.clear-both {
+  clear: both;
+}
+
+.item {
+  margin: 0.5em;
+  padding: 0.5em;
+  border: 1px solid #888;
+  overflow: hidden;
+  background: white;
+  height: inherit;
+}
+
+.buttons {
+  overflow: hidden;
+
+  .button {
+    float: left;
+    margin: 0.2em;
+    padding: 0.2em;
+    border: 1px solid black;
+    cursor: pointer;
+  }
+}

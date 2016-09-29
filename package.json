@@ -1,0 +1,15 @@
+{
+  "name": "supergrid",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Divan Burger",
+  "dependencies": {
+    "express": "^4.14.0",
+    "node-sass-middleware": "^0.9.8",
+    "pug": "^2.0.0-beta6"
+  }
+}
