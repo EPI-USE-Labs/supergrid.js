@@ -165,7 +165,7 @@
     SuperGrid.prototype.updateNode = function (node, position, size) {
         var old = {x: node.x, y: node.y, width: node.width};
 
-        node.x = Math.max(Math.min(Math.floor(position.left * 6.0 / this.containerWidth + 0.01), 6), 0);
+        node.x = Math.max(Math.min(Math.round(position.left * 6.0 / this.containerWidth), 6), 0);
 
         if (size !== undefined) {
             node.width = Math.max(Math.min(Math.ceil(size.width * 6.0 / this.containerWidth), 6), this.options.minItemWidth);
@@ -173,7 +173,8 @@
 
         node.y = 0;
         _.forEach(this.nodes, function (otherNode) {
-            if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && position.top > otherNode.pixelY) {
+            var pixelThreshold = otherNode.pixelY + otherNode.pixelHeight * 0.5;
+            if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && position.top > pixelThreshold) {
                 if (node.y < otherNode.y + 1) {
                     node.y = otherNode.y + 1;
                 }
@@ -213,8 +214,6 @@
     SuperGrid.prototype.onDragStop = function (event, ui) {
         var node = this.nodes[ui.helper.data('grid-id')];
 
-        this.draggingNodeId = -1;
-
         this.placeholderElement.hide();
 
         this.updateNode(node, ui.position);
@@ -223,8 +222,8 @@
         if (!this.options.resizableY) node.element.css({height: ''});
 
         this.layout();
-        node.element.css({top: node.pixelY});
 
+        this.draggingNodeId = -1;
         this.options.onChange();
     };
 
