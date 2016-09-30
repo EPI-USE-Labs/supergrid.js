@@ -36,12 +36,14 @@
             resizableY: false,
             dragZIndex: 100,
             minItemWidth: 1,
+            collapseContainerWidth: 700,
             onChange: function () {}
         });
 
         this.element = $(selector);
         this.nodes = [];
         this.draggingNodeId = -1;
+        this.collapsed = false;
         this.containerWidth = this.element.innerWidth();
 
         this.placeholderElement = $('<div class="grid-placeholder" />').hide();
@@ -52,9 +54,9 @@
             self.addNode($(item));
         });
 
-        this.layout();
+        this._onContainerWidthChange();
 
-        $(window).on('resize', function () {self.onWindowResize();});
+        $(window).on('resize', function () {self._onContainerWidthChange();});
 
         // Schedule a relayout in case the content changes
         setTimeout(function () {self.layout();}, 0);
@@ -84,7 +86,7 @@
                     handles: handles,
                     resize: this.onResize.bind(this),
                     start: this.onDragStart.bind(this),
-                    stop: this.onDragStop.bind(this)
+                    stop: this.onResizeStop.bind(this)
                 });
             }
         }
@@ -101,12 +103,14 @@
     };
 
     SuperGrid.prototype.destroy = function () {
-        $(window).off('resize', this.onWindowResize.bind(this));
+        $(window).off('resize', this._onContainerWidthChange.bind(this));
 
         _.forEach(this.nodes, function (node) {this.removeNode(node);});
     };
 
     SuperGrid.prototype.layout = function () {
+        if (this.collapsed) return;
+
         var self = this;
 
         var lastY = [];
@@ -157,49 +161,70 @@
         this.element.css('height', containerHeight);
     };
 
-    SuperGrid.prototype.updatePlaceholder = function (node) {
+    SuperGrid.prototype._updatePlaceholder = function (node) {
         this.placeholderElement.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
         this.placeholderElement.css({top: node.pixelY, height: node.pixelHeight});
     };
 
-    SuperGrid.prototype.updateNode = function (node, position, size) {
-        var old = {x: node.x, y: node.y, width: node.width};
-
-        node.x = Math.max(Math.min(Math.round(position.left * 6.0 / this.containerWidth), 6), 0);
-
-        if (size !== undefined) {
-            node.width = Math.max(Math.min(Math.ceil(size.width * 6.0 / this.containerWidth), 6), this.options.minItemWidth);
-        }
-
+    SuperGrid.prototype._updateNodeY = function (node, top) {
         node.y = 0;
         _.forEach(this.nodes, function (otherNode) {
-            var pixelThreshold = otherNode.pixelY + otherNode.pixelHeight * 0.5;
-            if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && position.top > pixelThreshold) {
-                if (node.y < otherNode.y + 1) {
-                    node.y = otherNode.y + 1;
+            if (node.id != otherNode.id) {
+                var pixelThreshold = otherNode.pixelY + otherNode.pixelHeight * 0.5;
+                if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && top > pixelThreshold) {
+                    if (node.y < otherNode.y + 1) node.y = otherNode.y + 1;
                 }
             }
         });
+    };
+
+    SuperGrid.prototype._updateNodeSize = function (node, position, size) {
+        var old = {x: node.x, y: node.y, width: node.width};
+
+        var errorMargin = 2;
+        var origStartX = node.x;
+        var origEndX = node.x + node.width;
+
+        var startX = Math.floor((position.left + errorMargin) * 6.0 / this.containerWidth);
+        var endX = Math.ceil((position.left + size.width - errorMargin)  * 6.0 / this.containerWidth);
+
+        if (endX - startX < this.options.minItemWidth) {
+            startX = origStartX;
+            endX = origEndX;
+        }
+
+        node.x = startX;
+        node.width = endX - startX;
+
+        this._updateNodeY(node, position.top);
 
         return (old.x != node.x || old.y != node.y || old.width != node.width);
+    };
+
+
+    SuperGrid.prototype._updateNodePosition = function (node, position) {
+        var old = {x: node.x, y: node.y};
+        node.x = Math.max(Math.min(Math.round(position.left * 6.0 / this.containerWidth), 6), 0);
+        this._updateNodeY(node, position.top);
+        return (old.x != node.x || old.y != node.y);
     };
 
     SuperGrid.prototype.onResize = function (event, ui) {
         var node = this.nodes[ui.helper.data('grid-id')];
 
-        ui.size.width = Math.max(this.containerWidth * this.options.minItemWidth / 6.0, ui.size.width);
-
-        this.updateNode(node, ui.position, ui.size);
-        this.updatePlaceholder(node);
+        this._updateNodeSize(node, ui.position, ui.size);
         this.layout();
+
+        this._updatePlaceholder(node);
     };
 
     SuperGrid.prototype.onDrag = function (event, ui) {
         var node = this.nodes[ui.helper.data('grid-id')];
 
-        this.updateNode(node, ui.position);
-        this.updatePlaceholder(node);
+        this._updateNodePosition(node, ui.position);
         this.layout();
+
+        this._updatePlaceholder(node);
     };
 
     SuperGrid.prototype.onDragStart = function (event, ui) {
@@ -207,7 +232,7 @@
 
         this.draggingNodeId = node.id;
 
-        this.updatePlaceholder(node);
+        this._updatePlaceholder(node);
         this.placeholderElement.show();
     };
 
@@ -216,7 +241,8 @@
 
         this.placeholderElement.hide();
 
-        this.updateNode(node, ui.position);
+        this._updateNodePosition(node, ui.position);
+
         node.element.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
         node.element.css({width: '', left: ''});
         if (!this.options.resizableY) node.element.css({height: ''});
@@ -227,8 +253,39 @@
         this.options.onChange();
     };
 
-    SuperGrid.prototype.onWindowResize = function () {
+    SuperGrid.prototype.onResizeStop = function (event, ui) {
+        var node = this.nodes[ui.helper.data('grid-id')];
+
+        this.placeholderElement.hide();
+
+        this._updateNodeSize(node, ui.position, ui.size, ui.originalPosition);
+
+        node.element.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
+        node.element.css({width: '', left: ''});
+        if (!this.options.resizableY) node.element.css({height: ''});
+
+        this.layout();
+
+        this.draggingNodeId = -1;
+        this.options.onChange();
+    };
+
+    SuperGrid.prototype._onContainerWidthChange = function () {
         this.containerWidth = this.element.innerWidth();
+
+        var collapse = (this.containerWidth <= this.options.collapseContainerWidth);
+        if (collapse != this.collapsed)
+        {
+            this.collapsed = collapse;
+            if (collapse) {
+                this.itemElements.not('.grid-vertical').addClass('grid-vertical');
+                this.element.css({height: ''});
+            }
+            else {
+                this.itemElements.removeClass('grid-vertical');
+            }
+        }
+
         this.layout();
     };
 
