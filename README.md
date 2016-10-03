@@ -15,9 +15,9 @@ determine which is placed below the other.
 
 ## Fixed-height vs Dynamic-height blocks
 
-Dynamic-height blocks adapt their height to their contents. If a block is given a height it will be a fixed-height block which will
-have the given height regardless of its contents. When a dynamic-height block is resized vertically it will become a
-fixed-height block. Fixed-height blocks also output an height value in the JSON but dynamic-height blocks don't.
+Dynamic-height blocks adapt their height to their contents. If a block is given a height it will be a fixed-height block
+which will have the given height regardless of its contents. Fixed-height blocks also output an height value in the JSON
+but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertically.
 
 ## Usage
 `var superGrid = new SuperGrid(<selector>, <options>);`
@@ -55,7 +55,7 @@ fixed-height block. Fixed-height blocks also output an height value in the JSON 
   When set to true and staticGrid is false, vertical resizing is enabled for all blocks. Blocks can be resized to any height.
 
 * *staticGrid* (default: true)
-  When set to false, dragging and resizing is enabled (resizing is dependent on other options) but requires jQuery UI.
+  IF set then no resizing or dragging is possible otherwise dragging and resizing is enabled (resizing is dependent on other options) but requires jQuery UI.
 
 ### CSS classes
 
@@ -80,21 +80,21 @@ fixed-height block. Fixed-height blocks also output an height value in the JSON 
 
 ### Methods
 
-* *layout()*
+* `layout()`
     Used to force a relayout of the grid when, for example, the height of a block changes.
     
-* *addBlock(\<element\>)*
+* `addBlock(<element>)`
     Add a block that didn't exist when SuperGrid was initialized. The element must already
     be added to the container.
     
-* *removeBlock(\<element\>)*
+* `removeBlock(<element>)`
     Remove a block from SuperGrid. The element must be manually removed from container.
     
-* *toJson()*
+* `toJson()`
     Generates JSON array of blocks with each block in the following format:
-    `{id: <id>, x_pos: <x>, y_pos: <y>, width: <width>, [height: <height>]}, ...`
+    `{id: <id>, x_pos: <x>, y_pos: <y>, width: <width>, [height: <height>]}`
     
-* *destroy()*
+* `destroy()`
     Removes all blocks from SuperGrid and removes all attached events.
 
 ### Example
