@@ -12,6 +12,16 @@
     }
   }
 
+  &.grid-animated {
+    .grid-item {
+      transition: top 0.2s, left 0.2s, width 0.2s;
+
+      &.ui-draggable-dragging, &.ui-resizable-resizing {
+        transition: top 0s, left 0s, width 0s;
+      }
+    }
+  }
+
   .grid-item {
     float: left;
 
@@ -54,10 +64,34 @@
       background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTEuNiA1MTEuNiIgaGVpZ2h0PSIxNiIgd2lkdGg9IjE2Ij48cGF0aCBkPSJtMTA5LjYgMzI4LjkgMC0zNi42IDI5Mi40IDAgMCAzNi42YzAgNC45IDEuOCA5LjIgNS40IDEyLjggMy42IDMuNiA3LjkgNS40IDEyLjggNS40IDQuOSAwIDkuMi0xLjggMTIuOS01LjRsNzMuMS03My4xYzMuNi0zLjYgNS40LTcuOSA1LjQtMTIuOCAwLTQuOS0xLjgtOS4yLTUuNC0xMi44bC03My4xLTczLjFjLTMuNi0zLjYtNy45LTUuNC0xMi45LTUuNC00LjkgMC05LjIgMS44LTEyLjggNS40LTMuNiAzLjYtNS40IDcuOS01LjQgMTIuOWwwIDM2LjUtMjkyLjQgMCAwLTM2LjVjMC01LTEuOC05LjItNS40LTEyLjgtMy42LTMuNi03LjktNS40LTEyLjktNS40LTQuOSAwLTkuMiAxLjgtMTIuOCA1LjRMNS40IDI0M0MxLjggMjQ2LjYgMCAyNTAuOSAwIDI1NS44YzAgNSAxLjggOS4yIDUuNCAxMi44bDczLjEgNzMuMWMzLjYgMy42IDcuOSA1LjQgMTIuOCA1LjQgNC45IDAgOS4yLTEuOCAxMi45LTUuNCAzLjYtMy42IDUuNC03LjkgNS40LTEyLjh6IiBmaWxsPSIjNjY2Ii8+PC9zdmc+);
     }
 
-    > .ui-resizable-n  { cursor: n-resize;  height: 20px; top: 0; left: 25px; right: 25px; }
-    > .ui-resizable-s  { cursor: s-resize;  height: 20px; left: 25px; bottom: 0; right: 25px; }
-    > .ui-resizable-e  { cursor: e-resize;  width: 20px; right: 0; top: 15px; bottom: 15px; }
-    > .ui-resizable-w  { cursor: w-resize;  width: 20px; left: 0; top: 15px; bottom: 15px; }
+    > .ui-resizable-n {
+      cursor: n-resize;
+      height: 20px;
+      top: 0;
+      left: 25px;
+      right: 25px;
+    }
+    > .ui-resizable-s {
+      cursor: s-resize;
+      height: 20px;
+      left: 25px;
+      bottom: 0;
+      right: 25px;
+    }
+    > .ui-resizable-e {
+      cursor: e-resize;
+      width: 20px;
+      right: 0;
+      top: 15px;
+      bottom: 15px;
+    }
+    > .ui-resizable-w {
+      cursor: w-resize;
+      width: 20px;
+      left: 0;
+      top: 15px;
+      bottom: 15px;
+    }
   }
 
   .grid-placeholder {

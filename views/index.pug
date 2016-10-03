@@ -93,7 +93,7 @@ html
                 window.grid = new SuperGrid('#grid-container', {staticGrid: true});
             });
             $('#enable-dynamic-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableX: true, resizableY: false, minItemWidth: 2});
+                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableX: true, resizableY: false, animated: true, minItemWidth: 2});
             });
             $('#enable-dynamic-height-grid').click(function () {
                 window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableX: true, resizableY: true});
@@ -110,5 +110,5 @@ html
             $('#add-widget').click(function () {
                 var html = '<div class="grid-item" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="item"><h1>New item</h1></div></div>';
                 window.grid.element.append(html);
-                window.grid.addNode($('.grid-item', window.grid.element).not('.grid-placed'));
+                window.grid.addItem($('.grid-item', window.grid.element).not('.grid-placed'));
             });

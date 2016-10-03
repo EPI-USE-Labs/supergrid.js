@@ -11,7 +11,7 @@
 })(function ($, _) {
     var scope = window;
 
-    var Node = function (element) {
+    var Item = function (element) {
         this.element = element;
         this.id = -1;
         this.x = Math.max(Math.min(element.data('grid-x') || 0, 6), 0);
@@ -22,7 +22,7 @@
         this.jsonId = -1;
     };
 
-    Node.prototype.setId = function (id) {
+    Item.prototype.setId = function (id) {
         this.id = id;
         this.element.data('grid-id', id);
     };
@@ -34,6 +34,7 @@
             staticGrid: true,
             resizableX: false,
             resizableY: false,
+            animated: false,
             dragZIndex: 100,
             minItemWidth: 1,
             collapseContainerWidth: 700,
@@ -41,7 +42,7 @@
         });
 
         this.element = $(selector);
-        this.nodes = [];
+        this.items = [];
         this.draggingNodeId = -1;
         this.collapsed = false;
         this.containerWidth = this.element.innerWidth();
@@ -51,10 +52,12 @@
 
         this.itemElements = $('.grid-item', this.element);
         this.itemElements.each(function (index, item) {
-            self.addNode($(item));
+            self.addItem($(item));
         });
 
         this._onContainerWidthChange();
+
+        if (this.options.animated) this.element.addClass('grid-animated');
 
         $(window).on('resize', function () {self._onContainerWidthChange();});
 
@@ -62,12 +65,12 @@
         setTimeout(function () {self.layout();}, 0);
     };
 
-    SuperGrid.prototype.addNode = function (element) {
-        var node = new Node(element);
-        node.setId(this.nodes.push(node) - 1);
-        node.jsonId = element.data('id');
+    SuperGrid.prototype.addItem = function (element) {
+        var item = new Item(element);
+        item.setId(this.items.push(item) - 1);
+        item.jsonId = element.data('id');
 
-        node.element.addClass('grid-placed');
+        item.element.addClass('grid-placed');
 
         if (!this.options.staticGrid) {
             element.draggable({
@@ -92,20 +95,20 @@
         }
     };
 
-    SuperGrid.prototype.removeNode = function (node) {
+    SuperGrid.prototype.removeItem = function (item) {
         if (!this.options.staticGrid) {
-            node.element.draggable("destroy");
-            node.element.resizable("destroy");
+            item.element.draggable("destroy");
+            item.element.resizable("destroy");
         }
 
-        node.element.data('grid-id', null);
-        node.element.removeClass('grid-placed');
+        item.element.data('grid-id', null);
+        item.element.removeClass('grid-placed');
     };
 
     SuperGrid.prototype.destroy = function () {
         $(window).off('resize', this._onContainerWidthChange.bind(this));
 
-        _.forEach(this.nodes, function (node) {this.removeNode(node);});
+        _.forEach(this.items, function (item) {this.removeItem(item);});
     };
 
     SuperGrid.prototype.layout = function () {
@@ -121,39 +124,39 @@
             lastPixelY[i] = 0;
         }
 
-        var sortedNodes = _.sortBy(this.nodes, function (n) {
+        var sortedItems = _.sortBy(this.items, function (n) {
             return n.y + ((n.id == self.draggingNodeId) ? 0.0 : 0.5) + (n.x / (6.0 * 2));
         });
 
-        _.forEach(sortedNodes, function (node) {
-            var startX = node.x;
-            var endX = node.x + node.width;
+        _.forEach(sortedItems, function (item) {
+            var startX = item.x;
+            var endX = item.x + item.width;
             var x;
 
             // Find starting pixel Y
-            node.y = 0;
-            node.pixelY = 0;
+            item.y = 0;
+            item.pixelY = 0;
             for (x = startX; x < endX; x++) {
-                if (lastY[x] > node.y) node.y = lastY[x];
-                if (lastPixelY[x] > node.pixelY) node.pixelY = lastPixelY[x];
+                if (lastY[x] > item.y) item.y = lastY[x];
+                if (lastPixelY[x] > item.pixelY) item.pixelY = lastPixelY[x];
             }
 
             // Get own pixel height
-            node.pixelHeight = node.element.outerHeight(true);
+            item.pixelHeight = item.element.outerHeight(true);
 
             // Record last Y coordinates in relevant columns
             for (x = startX; x < endX; x++) {
-                lastY[x] = node.y + 1;
-                lastPixelY[x] = node.pixelY + node.pixelHeight;
+                lastY[x] = item.y + 1;
+                lastPixelY[x] = item.pixelY + item.pixelHeight;
             }
 
             // Place item
-            node.element.attr({'data-grid-x': node.x, 'data-grid-y': node.y});
-            node.element.addClass('grid-placed');
-            node.element.css({top: node.pixelY});
+            item.element.attr({'data-grid-x': item.x, 'data-grid-y': item.y});
+            item.element.addClass('grid-placed');
+            item.element.css({top: item.pixelY});
 
             // Expand container
-            var endPixelY = node.pixelY + node.pixelHeight;
+            var endPixelY = item.pixelY + item.pixelHeight;
             if (containerHeight < endPixelY) containerHeight = endPixelY;
         });
 
@@ -161,37 +164,37 @@
         this.element.css('height', containerHeight);
     };
 
-    SuperGrid.prototype._updatePlaceholder = function (node) {
-        this.placeholderElement.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        this.placeholderElement.css({top: node.pixelY, height: node.pixelHeight});
+    SuperGrid.prototype._updatePlaceholder = function (item) {
+        this.placeholderElement.attr({'data-grid-x': item.x, 'data-grid-width': item.width});
+        this.placeholderElement.css({top: item.pixelY, height: item.pixelHeight});
     };
 
-    SuperGrid.prototype._updateNodeY = function (node, top) {
-        node.y = 0;
+    SuperGrid.prototype._updateNodeY = function (item, top) {
+        item.y = 0;
 
         // If the item is pulled towards the top we should always put it first
         // even if the check wouldn't put it first so that it is possible to
         // put it first vertically
         if (top > 0) {
-            var currentNodeMiddle = top + node.pixelHeight * 0.5;
+            var currentItemMiddle = top + item.pixelHeight * 0.5;
 
-            _.forEach(this.nodes, function (otherNode) {
-                if (node.id != otherNode.id) {
-                    var otherNodeMiddle = otherNode.pixelY + otherNode.pixelHeight * 0.5;
-                    if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && currentNodeMiddle >= otherNodeMiddle) {
-                        if (node.y < otherNode.y + 1) node.y = otherNode.y + 1;
+            _.forEach(this.items, function (otherItem) {
+                if (item.id != otherItem.id) {
+                    var otherItemMiddle = otherItem.pixelY + otherItem.pixelHeight * 0.5;
+                    if (item.x + item.width > otherItem.x && item.x < otherItem.x + otherItem.width && currentItemMiddle >= otherItemMiddle) {
+                        if (item.y < otherItem.y + 1) item.y = otherItem.y + 1;
                     }
                 }
             });
         }
     };
 
-    SuperGrid.prototype._updateNodeSize = function (node, position, size) {
-        var old = {x: node.x, y: node.y, width: node.width};
+    SuperGrid.prototype._updateNodeSize = function (item, position, size) {
+        var old = {x: item.x, y: item.y, width: item.width};
 
         var errorMargin = 2;
-        var origStartX = node.x;
-        var origEndX = node.x + node.width;
+        var origStartX = item.x;
+        var origEndX = item.x + item.width;
 
         var startX = Math.floor((position.left + errorMargin) * 6.0 / this.containerWidth);
         var endX = Math.ceil((position.left + size.width - errorMargin)  * 6.0 / this.containerWidth);
@@ -201,59 +204,59 @@
             endX = origEndX;
         }
 
-        node.x = startX;
-        node.width = endX - startX;
+        item.x = startX;
+        item.width = endX - startX;
 
-        this._updateNodeY(node, position.top);
+        this._updateNodeY(item, position.top);
 
-        return (old.x != node.x || old.y != node.y || old.width != node.width);
+        return (old.x != item.x || old.y != item.y || old.width != item.width);
     };
 
 
-    SuperGrid.prototype._updateNodePosition = function (node, position) {
-        var old = {x: node.x, y: node.y};
-        node.x = Math.max(Math.min(Math.round(position.left * 6.0 / this.containerWidth), 6), 0);
-        this._updateNodeY(node, position.top);
-        return (old.x != node.x || old.y != node.y);
+    SuperGrid.prototype._updateNodePosition = function (item, position) {
+        var old = {x: item.x, y: item.y};
+        item.x = Math.max(Math.min(Math.round(position.left * 6.0 / this.containerWidth), 6), 0);
+        this._updateNodeY(item, position.top);
+        return (old.x != item.x || old.y != item.y);
     };
 
     SuperGrid.prototype.onResize = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+        var item = this.items[ui.helper.data('grid-id')];
 
-        this._updateNodeSize(node, ui.position, ui.size);
+        this._updateNodeSize(item, ui.position, ui.size);
         this.layout();
 
-        this._updatePlaceholder(node);
+        this._updatePlaceholder(item);
     };
 
     SuperGrid.prototype.onDrag = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+        var item = this.items[ui.helper.data('grid-id')];
 
-        this._updateNodePosition(node, ui.position);
+        this._updateNodePosition(item, ui.position);
         this.layout();
 
-        this._updatePlaceholder(node);
+        this._updatePlaceholder(item);
     };
 
     SuperGrid.prototype.onDragStart = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+        var item = this.items[ui.helper.data('grid-id')];
 
-        this.draggingNodeId = node.id;
+        this.draggingNodeId = item.id;
 
-        this._updatePlaceholder(node);
+        this._updatePlaceholder(item);
         this.placeholderElement.show();
     };
 
     SuperGrid.prototype.onDragStop = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+        var item = this.items[ui.helper.data('grid-id')];
 
         this.placeholderElement.hide();
 
-        this._updateNodePosition(node, ui.position);
+        this._updateNodePosition(item, ui.position);
 
-        node.element.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        node.element.css({width: '', left: ''});
-        if (!this.options.resizableY) node.element.css({height: ''});
+        item.element.attr({'data-grid-x': item.x, 'data-grid-width': item.width});
+        item.element.css({width: '', left: ''});
+        if (!this.options.resizableY) item.element.css({height: ''});
 
         this.layout();
 
@@ -262,15 +265,15 @@
     };
 
     SuperGrid.prototype.onResizeStop = function (event, ui) {
-        var node = this.nodes[ui.helper.data('grid-id')];
+        var item = this.items[ui.helper.data('grid-id')];
 
         this.placeholderElement.hide();
 
-        this._updateNodeSize(node, ui.position, ui.size, ui.originalPosition);
+        this._updateNodeSize(item, ui.position, ui.size, ui.originalPosition);
 
-        node.element.attr({'data-grid-x': node.x, 'data-grid-width': node.width});
-        node.element.css({width: '', left: ''});
-        if (!this.options.resizableY) node.element.css({height: ''});
+        item.element.attr({'data-grid-x': item.x, 'data-grid-width': item.width});
+        item.element.css({width: '', left: ''});
+        if (!this.options.resizableY) item.element.css({height: ''});
 
         this.layout();
 
@@ -298,8 +301,8 @@
     };
 
     SuperGrid.prototype.toJson = function () {
-        return _.map(this.nodes, function (node) {
-            return {id: node.jsonId, x_pos: node.x, y_pos: node.y, width: node.width};
+        return _.map(this.items, function (item) {
+            return {id: item.jsonId, x_pos: item.x, y_pos: item.y, width: item.width};
         });
     };
 
