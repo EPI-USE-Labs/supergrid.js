@@ -21,49 +21,47 @@ html
             #add-widget.button Add widget
         .clear-both
         #grid-container.grid
-            .grid-item(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
+                .grid-block-content
+                    .block
                         h1 Test 1
                         p other test blah
-            .grid-item(data-id=2, data-grid-x=4, data-grid-y=0, data-grid-width=2)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=2, data-grid-x=4, data-grid-y=0, data-grid-width=2)
+                .grid-block-content
+                    .block
                         h1 Test 4
                         p other test blah
                         p other test blah
                         p other test blah
                         p other test blah
-            .grid-item(data-id=3, data-grid-x=0, data-grid-y=1, data-grid-width=2)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=3, data-grid-x=0, data-grid-y=1, data-grid-width=2, data-grid-height=200)
+                .grid-block-content
+                    .block(style="background: beige;")
+                        p Fixed height element
+            .grid-block(data-id=4, data-grid-x=2, data-grid-y=1, data-grid-width=2, data-grid-height=200, data-grid-height-resizable="true")
+                .grid-block-content
+                    .block(style="background: beige;")
+                        p Fixed height element
+            .grid-block(data-id=5, data-grid-x=4, data-grid-y=1, data-grid-width=2)
+                .grid-block-content
+                    .block
                         h1 Test 1
                         p other test blah
-            .grid-item(data-id=4, data-grid-x=2, data-grid-y=1, data-grid-width=2)
-                .grid-item-content
-                    .item
-                        h1 Test 1
-                        p other test blah
-            .grid-item(data-id=5, data-grid-x=4, data-grid-y=1, data-grid-width=2)
-                .grid-item-content
-                    .item
-                        h1 Test 1
-                        p other test blah
-            .grid-item(data-id=6, data-grid-x=0, data-grid-y=2, data-grid-width=6)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=6, data-grid-x=0, data-grid-y=2, data-grid-width=6)
+                .grid-block-content
+                    .block
                         h1 Test 7
                         p other test blah, a very very very awesomely super duper long super line
                         p other test blah
                         p other test blah
-            .grid-item(data-id=7, data-grid-x=0, data-grid-y=3, data-grid-width=4)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=7, data-grid-x=0, data-grid-y=3, data-grid-width=4)
+                .grid-block-content
+                    .block
                         h1 Test 2
                         p other test blah
-            .grid-item(data-id=8, data-grid-x=4, data-grid-y=3, data-grid-width=2)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=8, data-grid-x=4, data-grid-y=3, data-grid-width=2)
+                .grid-block-content
+                    .block
                         h1 Test 5
                         p other test blah, a very very super long line
                         p other test blah
@@ -71,9 +69,9 @@ html
                         p other test blah
                         p other test blah
                         p other test blah
-            .grid-item(data-id=9, data-grid-x=0, data-grid-y=4, data-grid-width=4)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=9, data-grid-x=0, data-grid-y=4, data-grid-width=4)
+                .grid-block-content
+                    .block
                         h1 Test 3
                         p other test blah
                         p other test blah
@@ -81,9 +79,9 @@ html
                         p other test blah
                         p other test blah
                         p other test blah
-            .grid-item(data-id=10, data-grid-x=4, data-grid-y=4, data-grid-width=2)
-                .grid-item-content
-                    .item
+            .grid-block(data-id=10, data-grid-x=4, data-grid-y=4, data-grid-width=2)
+                .grid-block-content
+                    .block
                         h1 Test 6
                         p other test blah
         p#json-out-area
@@ -93,10 +91,10 @@ html
                 window.grid = new SuperGrid('#grid-container', {staticGrid: true});
             });
             $('#enable-dynamic-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableX: true, resizableY: false, animated: true, minItemWidth: 2});
+                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: false, animated: true, minBlockWidth: 2});
             });
             $('#enable-dynamic-height-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableX: true, resizableY: true});
+                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: true});
             });
             $('#disable-grid').click(function () {
                 window.grid.destroy()
@@ -108,7 +106,7 @@ html
                 $('#json-out-area').text(JSON.stringify(window.grid.toJson()));
             });
             $('#add-widget').click(function () {
-                var html = '<div class="grid-item" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="item"><h1>New item</h1></div></div>';
+                var html = '<div class="grid-block" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="block"><h1>New block</h1></div></div>';
                 window.grid.element.append(html);
-                window.grid.addItem($('.grid-item', window.grid.element).not('.grid-placed'));
+                window.grid.addBlock($('.grid-block', window.grid.element).not('.grid-placed'));
             });

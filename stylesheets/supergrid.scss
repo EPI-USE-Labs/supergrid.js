@@ -3,26 +3,26 @@
   width: 100%;
 
   @for $x from 1 through 6 {
-    .grid-placed.grid-item[data-grid-x="#{$x}"], .grid-placeholder[data-grid-x="#{$x}"] {
+    .grid-placed.grid-block[data-grid-x="#{$x}"], .grid-placeholder[data-grid-x="#{$x}"] {
       left: $x * 100% / 6;
     }
 
-    .grid-item[data-grid-width="#{$x}"], .grid-placeholder[data-grid-width="#{$x}"] {
+    .grid-block[data-grid-width="#{$x}"], .grid-placeholder[data-grid-width="#{$x}"] {
       width: $x * 100% / 6;
     }
   }
 
   &.grid-animated {
-    .grid-item {
-      transition: top 0.2s, left 0.2s, width 0.2s;
+    .grid-block {
+      transition: top 0.2s, left 0.2s;
 
       &.ui-draggable-dragging, &.ui-resizable-resizing {
-        transition: top 0s, left 0s, width 0s;
+        transition: top 0s, left 0s;
       }
     }
   }
 
-  .grid-item {
+  .grid-block {
     float: left;
 
     &.grid-placed {
@@ -36,7 +36,7 @@
       width: 100%;
     }
 
-    .grid-item-content {
+    .grid-block-content {
       padding: 0.5em;
       box-sizing: border-box;
       width: 100%;
