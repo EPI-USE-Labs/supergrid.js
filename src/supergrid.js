@@ -31,7 +31,7 @@
         var self = this;
 
         this.options = _.defaults(options || {}, {
-            static: true,
+            staticGrid: true,
             resizableX: false,
             resizableY: false,
             dragZIndex: 100,
@@ -69,7 +69,7 @@
 
         node.element.addClass('grid-placed');
 
-        if (!this.options.static) {
+        if (!this.options.staticGrid) {
             element.draggable({
                 containment: "parent",
                 zIndex: this.options.dragZIndex,
@@ -93,7 +93,7 @@
     };
 
     SuperGrid.prototype.removeNode = function (node) {
-        if (!this.options.static) {
+        if (!this.options.staticGrid) {
             node.element.draggable("destroy");
             node.element.resizable("destroy");
         }

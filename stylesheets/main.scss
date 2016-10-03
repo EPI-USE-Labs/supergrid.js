@@ -3,12 +3,14 @@
 }
 
 .item {
-  margin: 0.5em;
   padding: 0.5em;
   border: 1px solid #888;
   overflow: hidden;
   background: white;
-  height: inherit;
+
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
 }
 
 .buttons {
