@@ -7,11 +7,11 @@ SuperGrid is inspired by gridstack.js and gridster.js.
 
 ## Layout
 
-Each block has a x-position, a y-position and a width. The x-position and width is in columns. The y-position is
-unit-less and only the relative y-positions between blocks matter. If the y-position of a block is larger than another 
+Each block has a x-position, a y-position, a width and an optional height. The x-position and width is in columns. The y-position is
+unit-less and only the relative y-positions between blocks matter. The height is in pixels. If the y-position of a block is larger than another 
 block's then it will be placed below that block. If they are the same and they overlap on the x-axis then the block with
-the larger x-position is placed below the other block. If they still tie then there order in the html is used to
-determine which is placed below the other.
+the larger x-position is placed below the other block. If they still tie then their order in the html is used to
+determine their order.
 
 ## Fixed-height vs Dynamic-height blocks
 
