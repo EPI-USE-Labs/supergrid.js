@@ -168,14 +168,22 @@
 
     SuperGrid.prototype._updateNodeY = function (node, top) {
         node.y = 0;
-        _.forEach(this.nodes, function (otherNode) {
-            if (node.id != otherNode.id) {
-                var pixelThreshold = otherNode.pixelY + otherNode.pixelHeight * 0.5;
-                if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && top > pixelThreshold) {
-                    if (node.y < otherNode.y + 1) node.y = otherNode.y + 1;
+
+        // If the item is pulled towards the top we should always put it first
+        // even if the check wouldn't put it first so that it is possible to
+        // put it first vertically
+        if (top > 0) {
+            var currentNodeMiddle = top + node.pixelHeight * 0.5;
+
+            _.forEach(this.nodes, function (otherNode) {
+                if (node.id != otherNode.id) {
+                    var otherNodeMiddle = otherNode.pixelY + otherNode.pixelHeight * 0.5;
+                    if (node.x + node.width > otherNode.x && node.x < otherNode.x + otherNode.width && currentNodeMiddle >= otherNodeMiddle) {
+                        if (node.y < otherNode.y + 1) node.y = otherNode.y + 1;
+                    }
                 }
-            }
-        });
+            });
+        }
     };
 
     SuperGrid.prototype._updateNodeSize = function (node, position, size) {
