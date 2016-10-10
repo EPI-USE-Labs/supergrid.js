@@ -85,7 +85,7 @@ html
                         h1 Test 6
                         p other test blah
         p#json-out-area
-        script.
+        script(type="text/javascript").
             window.grid = null;
             $('#enable-static-grid').click(function () {
                 window.grid = new SuperGrid('#grid-container', {staticGrid: true});
@@ -106,7 +106,8 @@ html
                 $('#json-out-area').text(JSON.stringify(window.grid.toJson()));
             });
             $('#add-widget').click(function () {
-                var html = '<div class="grid-block" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="block"><h1>New block</h1></div></div>';
+                var html = '<div class="grid-block" data-id="new" data-grid-x="0" data-grid-y="10000" data-grid-width="2"><div class="grid-block-content"><div class="block"><h1>New block</h1></div></div></div>';
                 window.grid.element.append(html);
                 window.grid.addBlock($('.grid-block', window.grid.element).not('.grid-placed'));
+                window.grid.layout();
             });
