@@ -54,6 +54,9 @@ but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertic
 * *resizableBlockHeight* (default: false)
   When set to true and staticGrid is false, vertical resizing is enabled for all blocks. Blocks can be resized to any height.
 
+* *heightSnapIncrement* (default: false)
+  When set to a value, height resizeable blocks will snap to the nearest multiple of this value (in pixels) when resized.
+
 * *staticGrid* (default: true)
   IF set then no resizing or dragging is possible otherwise dragging and resizing is enabled (resizing is dependent on other options) but requires jQuery UI.
 
