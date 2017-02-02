@@ -15,6 +15,7 @@ html
             #enable-static-grid.button Enable static grid
             #enable-dynamic-grid.button Enable dynamic grid
             #enable-dynamic-height-grid.button Enable dynamic grid with resizable height
+            #enable-dynamic-height-grid-snapping.button Enable dynamic grid with resizable height (snapping)
             #disable-grid.button Disable grid
             #force-layout.button Force layout
             #json-out.button Output JSON
@@ -95,6 +96,9 @@ html
             });
             $('#enable-dynamic-height-grid').click(function () {
                 window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: true});
+            });
+            $('#enable-dynamic-height-grid-snapping').click(function () {
+                            window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: true, heightSnapIncrement: 50});
             });
             $('#disable-grid').click(function () {
                 window.grid.destroy()
