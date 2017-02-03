@@ -2,14 +2,8 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery', 'lodash'], factory);
     } else if (typeof exports !== 'undefined') {
-        try {
-            jQuery = require('jquery');
-        } catch (e) {
-        }
-        try {
-            _ = require('lodash');
-        } catch (e) {
-        }
+        try { jQuery = require('jquery'); } catch (e) { }
+        try { _ = require('lodash'); } catch (e) { }
         factory(jQuery, _);
     } else {
         factory(jQuery, _);
@@ -54,10 +48,8 @@
             minBlockWidth: 1,
             collapseContainerWidth: 700,
             heightSnapIncrement: false,
-            onChange: function () {
-            },
-            onLoaded: function () {
-            }
+            onChange: function () {},
+            onLoaded: function () {}
         });
 
         this.element = $(selector);
