@@ -47,6 +47,7 @@
             dragZIndex: 100,
             minBlockWidth: 1,
             collapseContainerWidth: 700,
+            heightSnapIncrement: false,
             onChange: function () {},
             onLoaded: function () {}
         });
@@ -222,7 +223,14 @@
     SuperGrid.prototype._updateBlockElement = function (block) {
         block.element.attr({'data-grid-x': block.x, 'data-grid-width': block.width});
         block.element.css({width: '', left: ''});
-        if (!block.fixedHeight) block.element.css({height: ''});
+
+        if (block.fixedHeight) {
+            block.element.attr('data-grid-height', block.height);
+            block.element.css('height', block.height + 'px');
+        }
+        else
+            block.element.css({height: ''});
+
     };
 
     SuperGrid.prototype._updateBlockY = function (block, top) {
@@ -263,8 +271,13 @@
         block.x = startX;
         block.width = endX - startX;
 
+        if (this.options.heightSnapIncrement)
+            block.height = Math.ceil(size.height / this.options.heightSnapIncrement) * this.options.heightSnapIncrement;
+        else
+            block.height = size.height;
+
+
         this._updateBlockY(block, position.top);
-        if (block.fixedHeight) block.height = size.height;
 
         return (old.x != block.x || old.y != block.y || old.width != block.width);
     };
