@@ -48,6 +48,9 @@ but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertic
 * *minBlockWidth* (default: 1)
   The minimum amount of columns an block must span. Blocks can not be resized to be smaller than this.
   
+* *minBlockHeight* (default: 50)
+  The minimum height of a block in pixels. Blocks cannot be resized to have a smaller height than this.
+    
 * *resizableBlockWidth* (default: false)
   When set to true and staticGrid is false, horizontal resizing is enabled for all blocks. Block widths snap to columns.
   
