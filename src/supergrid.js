@@ -46,6 +46,7 @@
             animated: false,
             dragZIndex: 100,
             minBlockWidth: 1,
+            minBlockHeight: 50,
             collapseContainerWidth: 700,
             heightSnapIncrement: false,
             onChange: function () {},
@@ -271,11 +272,14 @@
         block.x = startX;
         block.width = endX - startX;
 
-        if (this.options.heightSnapIncrement)
-            block.height = Math.ceil(size.height / this.options.heightSnapIncrement) * this.options.heightSnapIncrement;
-        else
-            block.height = size.height;
+        var height = size.height;
+        if (height < this.options.minBlockHeight)
+            height = this.options.minBlockHeight;
 
+        if (this.options.heightSnapIncrement)
+            block.height = Math.ceil(height / this.options.heightSnapIncrement) * this.options.heightSnapIncrement;
+        else
+            block.height = height;
 
         this._updateBlockY(block, position.top);
 
