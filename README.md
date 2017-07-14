@@ -100,6 +100,9 @@ but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertic
     Generates JSON array of blocks with each block in the following format:
     `{id: <id>, x_pos: <x>, y_pos: <y>, width: <width>, [height: <height>]}`
     
+*  `pack()`
+    Packs the blocks using a simple left-to-right top-to-bottom algorithm 
+    
 * `destroy()`
     Removes all blocks from SuperGrid and removes all attached events.
 

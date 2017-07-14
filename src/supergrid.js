@@ -380,5 +380,59 @@
         });
     };
 
+    SuperGrid.prototype.pack = function () {
+        var self = this;
+
+        var lastPixelY = [];
+        var containerHeight = 0;
+        for (var i = 0; i < 6; i++) {
+            lastPixelY[i] = 0;
+        }
+
+        this.layout(false);
+
+        var sortedBlocks = _.sortBy(this.blocks, function (n) {
+            return n.y + ((n.id == self.draggingNodeId) ? 0.0 : 0.5) + (n.x / (6.0 * 2));
+        });
+
+        // Calculate positions
+        _.forEach(sortedBlocks, function (block) {
+            console.dir(block);
+
+            var x, y, startX, blockX, startY;
+            var bestStartY = -1;
+            var bestStartX = 0;
+
+            // Find first open spot
+            for (startX = 0; startX <= 6 - block.width; startX++) {
+                startY = 0;
+                for (blockX = 0; blockX < block.width; blockX++) {
+                    x = startX + blockX;
+                    y = lastPixelY[x];
+                    if (y > startY) startY = y;
+                }
+
+                if (bestStartY === -1 || startY < bestStartY) {
+                    bestStartY = startY;
+                    bestStartX = startX;
+                }
+            }
+
+            block.x = bestStartX;
+            block.y = bestStartY;
+
+            // Record last Y coordinates in relevant columns
+            for (x = block.x; x < block.x + block.width; x++) {
+                lastPixelY[x] = block.y + block.height;
+            }
+
+            // Expand container
+            var endPixelY = block.y + block.height;
+            if (containerHeight < endPixelY) containerHeight = endPixelY;
+        });
+
+        this.layout(false);
+    };
+
     return scope.SuperGrid = SuperGrid;
 });

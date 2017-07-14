@@ -20,6 +20,7 @@ html
             #force-layout.button Force layout
             #json-out.button Output JSON
             #add-widget.button Add widget
+            #pack.button Pack
         .clear-both
         #grid-container.grid
             .grid-block(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
@@ -114,4 +115,7 @@ html
                 window.grid.element.append(html);
                 window.grid.addBlock($('.grid-block', window.grid.element).not('.grid-placed'));
                 window.grid.layout();
+            });
+            $('#pack').click(function () {
+                window.grid.pack()
             });
