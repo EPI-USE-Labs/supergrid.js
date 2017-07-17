@@ -380,6 +380,58 @@
         });
     };
 
+    SuperGrid.prototype.openSpaces = function (minHeight) {
+        minHeight = (typeof minHeight === 'undefined') ? this.options.minBlockHeight : minHeight;
+
+        var self = this;
+
+        var lastPixelY = [];
+        var openSpaces = [];
+        for (var i = 0; i < 6; i++) {
+            lastPixelY[i] = 0;
+        }
+
+        this.layout(false);
+
+        var sortedBlocks = _.sortBy(this.blocks, function (n) {
+            return n.y + ((n.id == self.draggingNodeId) ? 0.0 : 0.5) + (n.x / (6.0 * 2));
+        });
+
+        // Get open spaces
+        _.forEach(sortedBlocks, function (block) {
+            var x;
+            var startX = block.x;
+            var endX = block.x + block.width;
+
+            var space = {x_pos: 0, y_pos: 0, width: 0, height: 0};
+
+            for (x = startX; x < endX; x++) {
+                var lastY = lastPixelY[x];
+                var height = block.y - lastY;
+
+                // If the top is at a different height, add the current space
+                if (space.height !== height || space.y_pos !== lastY) {
+                    if (space.height >= minHeight) {
+                        space.width = x - space.x_pos;
+                        openSpaces.push(space);
+                    }
+
+                    space = {x_pos: x, y_pos: lastY, width: 0, height: height};
+                }
+            }
+
+            if (space.height >= minHeight) {
+                space.width = x - space.x_pos;
+                openSpaces.push(space);
+            }
+
+            // Record last Y coordinates in relevant columns
+            for (x = startX; x < endX; x++) lastPixelY[x] = block.y + block.height;
+        });
+
+        return openSpaces;
+    };
+
     SuperGrid.prototype.pack = function () {
         var self = this;
 
@@ -397,8 +449,6 @@
 
         // Calculate positions
         _.forEach(sortedBlocks, function (block) {
-            console.dir(block);
-
             var x, y, startX, blockX, startY;
             var bestStartY = -1;
             var bestStartX = 0;

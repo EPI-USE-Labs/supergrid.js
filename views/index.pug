@@ -21,6 +21,7 @@ html
             #json-out.button Output JSON
             #add-widget.button Add widget
             #pack.button Pack
+            #fillOpenSpaces.button Fill open spaces
         .clear-both
         #grid-container.grid
             .grid-block(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
@@ -118,4 +119,17 @@ html
             });
             $('#pack').click(function () {
                 window.grid.pack()
+            });
+            $('#fillOpenSpaces').click(function () {
+                var spaces = window.grid.openSpaces();
+                _.forEach(spaces, function (space) {
+                    var html = '<div class="grid-block" data-id="new" data-grid-x="' + space.x_pos +
+                        '" data-grid-y="' + space.y_pos +
+                        '" data-grid-width="' + space.width +
+                        '" data-grid-height="' + space.height +
+                        '"><div class="grid-block-content"><div class="block">Space</div></div></div>';
+                    window.grid.element.append(html);
+                    window.grid.addBlock($('.grid-block', window.grid.element).not('.grid-placed'));
+                });
+                window.grid.layout();
             });

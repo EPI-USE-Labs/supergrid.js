@@ -100,8 +100,16 @@ but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertic
     Generates JSON array of blocks with each block in the following format:
     `{id: <id>, x_pos: <x>, y_pos: <y>, width: <width>, [height: <height>]}`
     
-*  `pack()`
+* `pack()`
     Packs the blocks using a simple left-to-right top-to-bottom algorithm 
+    
+* `openSpaces(minHeight = options.minBlockHeight)`
+    Returns a list of open spaces between blocks with a minimum height of minHeight.
+    minHeight defaults to the minimum block height given in the options. 
+    
+    The format is as follows: `{x_pos: <x>, y_pos: <y>, width: <width>, height: <height>}`
+    
+    `x_pos` and `width` are in columns and `y_pos` and `height` are in pixels.
     
 * `destroy()`
     Removes all blocks from SuperGrid and removes all attached events.
