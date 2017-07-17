@@ -5,6 +5,8 @@ layout where blocks always fall to the top of the grid. Both dynamic-height and 
 
 SuperGrid is inspired by gridstack.js and gridster.js.
 
+**[Demo Page](https://epi-use-labs.github.io/supergrid.js/)**
+
 ## Layout
 
 Each block has a x-position, a y-position, a width and an optional height. The x-position and width is in columns. The y-position is
