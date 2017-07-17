@@ -1,16 +1,16 @@
 {
   "name": "supergrid",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node build_page.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Divan Burger",
   "dependencies": {
-    "express": "^4.14.0",
-    "node-sass-middleware": "^0.9.8",
+    "async": "^2.5.0",
+    "node-sass": "^4.5.3",
     "pug": "^2.0.0-beta6"
   }
 }
