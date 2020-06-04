@@ -47,6 +47,11 @@ but dynamic-height blocks don't. Dynamic-height blocks can not be resized vertic
 * *dragZIndex* (default: 100)
   The z-index given to the block being dragged.
   
+* *layout* (default: 'classic')
+  Switches between layout algorithms. The following layouts are supported:
+    * classic: The default fall to top algorithm (inverse tetris)
+    * packed_rows: Packs blocks left to right in rows
+
 * *minBlockWidth* (default: 1)
   The minimum amount of columns an block must span. Blocks can not be resized to be smaller than this.
   
