@@ -11,11 +11,18 @@ html
         script(src="lib/supergrid.js")
     body
         h1 SuperGrid demo
-        .buttons
-            #enable-static-grid.button Enable static grid
-            #enable-dynamic-grid.button Enable dynamic grid
-            #enable-dynamic-height-grid.button Enable dynamic grid with resizable height
-            #enable-dynamic-height-grid-snapping.button Enable dynamic grid with resizable height (snapping)
+        .buttons.for-inactive
+            #enable.button Enable
+            select#layout-algorithm.select
+                option(value="classic") Classic
+                option(value="packed_rows") Packed rows
+            input.checkbox#static-grid(type="checkbox")
+            label Static
+            input.checkbox#resizable-height(type="checkbox")
+            label Resizable height
+            input.checkbox#height-snapping(type="checkbox")
+            label Height snapping
+        .buttons.for-active.hide
             #disable-grid.button Disable grid
             #force-layout.button Force layout
             #json-out.button Output JSON
@@ -23,7 +30,6 @@ html
             #pack.button Pack
             #fillOpenSpaces.button Fill open spaces
             #fillOpenSpacesIncludeEnd.button Fill open spaces (Include end)
-        .clear-both
         #grid-container.grid
             .grid-block(data-id=1, data-grid-x=0, data-grid-y=0, data-grid-width=4)
                 .grid-block-content
@@ -45,7 +51,7 @@ html
             .grid-block(data-id=4, data-grid-x=2, data-grid-y=1, data-grid-width=2, data-grid-height=200, data-grid-height-resizable="true")
                 .grid-block-content
                     .block(style="background: beige;")
-                        p Fixed height element
+                        p Fixed height element with forced resizable height
             .grid-block(data-id=5, data-grid-x=4, data-grid-y=1, data-grid-width=2)
                 .grid-block-content
                     .block
@@ -91,23 +97,30 @@ html
         p#json-out-area
         script(type="text/javascript").
             window.grid = null;
-            $('#enable-static-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: true});
+
+            $('#enable').click(function () {
+                var options = {staticGrid: true};
+                if (!$('input#static-grid').prop('checked')) {
+                    options = {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: false, animated: true, minBlockWidth: 2};
+
+                    if ($('input#resizable-height').prop('checked')) options.resizableBlockHeight = true;
+                    if ($('input#height-snapping').prop('checked')) options.heightSnapIncrement = 50;
+                }
+
+                options.layout = $('select#layout-algorithm').val();
+
+                window.grid = new SuperGrid('#grid-container', options);
+                $('.for-active').removeClass('hide');
+                $('.for-inactive').addClass('hide');
             });
-            $('#enable-dynamic-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: false, animated: true, minBlockWidth: 2});
-            });
-            $('#enable-dynamic-height-grid').click(function () {
-                window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: true});
-            });
-            $('#enable-dynamic-height-grid-snapping').click(function () {
-                            window.grid = new SuperGrid('#grid-container', {staticGrid: false, resizableBlockWidth: true, resizableBlockHeight: true, heightSnapIncrement: 50});
-            });
+
             $('#disable-grid').click(function () {
-                window.grid.destroy()
+                window.grid.destroy();
+                $('.for-inactive').removeClass('hide');
+                $('.for-active').addClass('hide');
             });
             $('#force-layout').click(function () {
-                window.grid.layout()
+                window.grid.layout();
             });
             $('#json-out').click(function () {
                 $('#json-out-area').text(JSON.stringify(window.grid.toJson()));
@@ -119,7 +132,7 @@ html
                 window.grid.layout();
             });
             $('#pack').click(function () {
-                window.grid.pack()
+                window.grid.pack();
             });
             $('#fillOpenSpaces').click(function () {
                 var spaces = window.grid.openSpaces();

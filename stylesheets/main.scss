@@ -1,7 +1,3 @@
-.clear-both {
-  clear: both;
-}
-
 .block {
   padding: 0.5em;
   border: 1px solid #888;
@@ -14,13 +10,28 @@
 }
 
 .buttons {
-  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
 
   .button {
-    float: left;
     margin: 0.2em;
     padding: 0.2em;
     border: 1px solid black;
     cursor: pointer;
+  }
+
+  select.select {
+    margin: 0.2em;
+    padding: 0.2em;
+  }
+
+  input.checkbox {
+    margin-left: 12px;
+  }
+
+  &.hide {
+    display: none;
   }
 }
